@@ -1,0 +1,36 @@
+# --- Rust ---
+/target/
+**/*.rs.bk
+*.pdb
+
+# --- Docker & Volume locale ---
+.docker/
+docker-compose.override.yml
+*.tar
+*.tar.gz
+
+# --- Capturi de rețea (Wireshark / tcpdump) ---
+*.pcap
+*.pcapng
+*.cap
+
+# --- Mediu, Secrete & Chei (Tor / Onion / PQC) ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.p12
+hidden_service/
+tor_data/
+
+# --- Sistem & IDE (Linux / VS Code / JetBrains) ---
+.DS_Store
+*~
+*.swp
+*.swo
+.vscode/
+.idea/
+*.log
+__pycache__/

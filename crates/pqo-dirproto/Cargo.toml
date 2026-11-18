@@ -1,0 +1,17 @@
+[package]
+name = "pqo-dirproto"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Formatele de document ale sistemului de director: descriptori, voturi, consens"
+
+[features]
+default = []
+pq = ["pqo-crypto/pq"]
+
+[dependencies]
+pqo-crypto = { path = "../pqo-crypto" }
+
+[dev-dependencies]
+rand_core = { version = "0.6", features = ["getrandom"] }

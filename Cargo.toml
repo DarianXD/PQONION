@@ -1,0 +1,9 @@
+[workspace]
+members = ["crates/pqo-crypto", "crates/pqo-wire", "crates/pqo-dirproto", "crates/pqo-dirauth", "crates/pqo-hs", "crates/pqo-relay", "crates/pqo-relay-io", "crates/pqo-client", "crates/pqo-bin", "crates/pqo-shop"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+license = "MIT OR Apache-2.0"

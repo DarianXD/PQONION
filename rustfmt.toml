@@ -1,0 +1,13 @@
+# Formatare determinista.
+#
+# Deliberat aproape gol: doar optiuni stabile. Orice optiune care cere nightly
+# ar face ca `cargo fmt` sa dea rezultate diferite in functie de toolchain,
+# ceea ce transforma formatarea dintr-o verificare automata intr-o sursa de
+# diferente false.
+#
+# In particular NU folosim:
+#   wrap_comments              — ar rupe tabelele ASCII din comentariile de doc
+#   format_code_in_doc_comments — ar reformata exemplele din documentatie
+#   imports_granularity        — cere nightly
+edition = "2021"
+newline_style = "Unix"

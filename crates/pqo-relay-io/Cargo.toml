@@ -1,0 +1,31 @@
+[package]
+name = "pqo-relay-io"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Coaja de I/O: incadrare de celule, canale si executarea actiunilor unui releu"
+
+[features]
+default = []
+pq = ["pqo-crypto/pq", "pqo-relay/pq"]
+# Transport TLS. Vezi nota din `tls.rs` despre versiuni.
+tls = ["dep:rustls", "dep:tokio-rustls", "dep:rcgen"]
+
+[dependencies]
+pqo-crypto = { path = "../pqo-crypto" }
+pqo-wire   = { path = "../pqo-wire" }
+pqo-relay  = { path = "../pqo-relay" }
+pqo-dirproto = { path = "../pqo-dirproto" }
+rand_core  = { version = "0.6", default-features = false, features = ["getrandom"] }
+tokio      = { version = "1", default-features = false, features = ["rt", "net", "io-util", "sync", "time", "macros"] }
+rustls       = { version = "0.21", optional = true, default-features = false, features = ["dangerous_configuration", "tls12"] }
+tokio-rustls = { version = "0.24", optional = true, default-features = false }
+rcgen        = { version = "0.11", optional = true }
+
+[dev-dependencies]
+pqo-hs = { path = "../pqo-hs" }
+pqo-dirproto = { path = "../pqo-dirproto" }
+rand_core = { version = "0.6", features = ["getrandom"] }
+tokio     = { version = "1", features = ["rt-multi-thread", "macros", "io-util", "net", "sync", "time"] }
+pqo-relay = { path = "../pqo-relay" }

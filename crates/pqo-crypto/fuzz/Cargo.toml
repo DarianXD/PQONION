@@ -1,0 +1,37 @@
+[package]
+name = "pqo-crypto-fuzz"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+pqo-crypto = { path = ".." }
+rand_core = { version = "0.6", features = ["getrandom"] }
+
+[[bin]]
+name = "ntor_server"
+path = "fuzz_targets/ntor_server.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "cgo_client"
+path = "fuzz_targets/cgo_client.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "cgo_relay"
+path = "fuzz_targets/cgo_relay.rs"
+test = false
+doc = false
+bench = false
+
+# Workspace propriu: tintele de fuzzing cer nightly, workspace-ul principal nu.
+[workspace]

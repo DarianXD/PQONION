@@ -1,0 +1,4 @@
+[toolchain]
+# MSRV real al proiectului. Feature-ul `pq` (ml-kem) cere >= 1.81.
+channel = "stable"
+components = ["rustfmt", "clippy"]

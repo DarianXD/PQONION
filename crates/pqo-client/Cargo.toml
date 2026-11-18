@@ -1,0 +1,25 @@
+[package]
+name = "pqo-client"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Client: selectie de cale din consens, guard-uri persistente, frontend SOCKS5"
+
+[features]
+default = []
+pq = ["pqo-crypto/pq", "pqo-dirproto/pq", "pqo-relay-io/pq"]
+
+[dependencies]
+pqo-crypto   = { path = "../pqo-crypto" }
+pqo-wire     = { path = "../pqo-wire" }
+pqo-dirproto = { path = "../pqo-dirproto" }
+pqo-relay-io = { path = "../pqo-relay-io" }
+rand_core    = { version = "0.6", default-features = false, features = ["getrandom"] }
+tokio        = { version = "1", default-features = false, features = ["rt", "net", "io-util", "sync", "time", "macros"] }
+
+[dev-dependencies]
+pqo-dirproto = { path = "../pqo-dirproto" }
+pqo-relay = { path = "../pqo-relay" }
+rand_core = { version = "0.6", features = ["getrandom"] }
+tokio     = { version = "1", features = ["rt-multi-thread", "macros", "io-util", "net", "sync", "time"] }

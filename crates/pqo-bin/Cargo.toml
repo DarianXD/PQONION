@@ -1,0 +1,46 @@
+[package]
+name = "pqo-bin"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Executabile: releu, autoritate de director, client"
+
+[features]
+default = []
+pq = ["pqo-crypto/pq", "pqo-dirproto/pq", "pqo-relay-io/pq", "pqo-client/pq", "pqo-hs/pq"]
+tls = ["pqo-relay-io/tls"]
+
+[dependencies]
+pqo-crypto   = { path = "../pqo-crypto" }
+pqo-wire     = { path = "../pqo-wire" }
+pqo-dirproto = { path = "../pqo-dirproto" }
+pqo-dirauth  = { path = "../pqo-dirauth" }
+pqo-relay    = { path = "../pqo-relay" }
+pqo-relay-io = { path = "../pqo-relay-io" }
+pqo-client   = { path = "../pqo-client" }
+pqo-hs       = { path = "../pqo-hs" }
+pqo-shop     = { path = "../pqo-shop" }
+serde_json   = "1"
+rand_core    = { version = "0.6", default-features = false, features = ["getrandom"] }
+tokio        = { version = "1", default-features = false, features = ["rt-multi-thread", "net", "io-util", "sync", "time", "macros", "signal"] }
+
+[dev-dependencies]
+pqo-relay = { path = "../pqo-relay" }
+rand_core = { version = "0.6", features = ["getrandom"] }
+
+[[bin]]
+name = "pqonion-relay"
+path = "src/bin/relay.rs"
+
+[[bin]]
+name = "pqonion-dirauth"
+path = "src/bin/dirauth.rs"
+
+[[bin]]
+name = "pqonion-client"
+path = "src/bin/client.rs"
+
+[[bin]]
+name = "pqonion-hs"
+path = "src/bin/hs.rs"

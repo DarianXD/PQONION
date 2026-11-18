@@ -1,0 +1,20 @@
+[package]
+name = "pqo-relay"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Nucleul unui releu: handshake de legatura si rutare de circuite, fara I/O"
+
+[features]
+default = []
+pq = ["pqo-crypto/pq"]
+
+[dependencies]
+pqo-crypto = { path = "../pqo-crypto" }
+pqo-wire   = { path = "../pqo-wire" }
+subtle     = { version = "2", default-features = false }
+rand_core  = { version = "0.6", default-features = false }
+
+[dev-dependencies]
+rand_core = { version = "0.6", features = ["getrandom"] }

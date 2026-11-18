@@ -1,0 +1,24 @@
+[package]
+name = "pqo-hs"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Servicii ascunse: adrese .onion post-cuantice, descriptori, HSDir, rendezvous"
+
+[features]
+default = []
+pq = ["pqo-crypto/pq", "pqo-dirproto/pq"]
+
+[dependencies]
+pqo-crypto   = { path = "../pqo-crypto" }
+pqo-dirproto = { path = "../pqo-dirproto" }
+subtle       = { version = "2", default-features = false }
+zeroize      = { version = "1.8", default-features = false }
+rand_core    = { version = "0.6", default-features = false }
+
+[dev-dependencies]
+pqo-relay = { path = "../pqo-relay" }
+pqo-relay-io = { path = "../pqo-relay-io" }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "io-util", "net", "sync", "time"] }
+rand_core = { version = "0.6", features = ["getrandom"] }

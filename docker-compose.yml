@@ -1,0 +1,196 @@
+# Testnet in containere.
+#
+#   docker compose up --build
+#   ./docker/verifica.sh          (din alt terminal)
+#
+# # De ce Docker si nu doar procese pe localhost
+#
+# Pe localhost toate nodurile impart aceeasi stiva de retea si acelasi sistem de
+# fisiere. Asta ascunde exact greselile pe care un testnet ar trebui sa le
+# prinda: un nod care presupune ca poate citi cheile altuia, sau care publica
+# `127.0.0.1` ca adresa si pare ca merge pentru ca toti sunt pe aceeasi masina.
+#
+# Aici fiecare nod are propria adresa in `10.42.0.0/24`, propriul sistem de
+# fisiere si propriul spatiu de procese. Daca un releu ar depinde de ceva ce nu
+# circula pe fir, aici s-ar vedea.
+#
+# # Ce ramane artificial
+#
+# Semintele sunt derivate din index, ca sa poata clientul afla cheile releelor
+# fara sa descarce descriptori. Intr-un deployment real, doar cheile
+# autoritatilor sunt cunoscute dinainte. Vezi `docker/pornire.sh`.
+
+services:
+
+  # -------------------------------------------------------------------------
+  # Autoritatea de director
+  # -------------------------------------------------------------------------
+  autoritate:
+    build: .
+    image: pqonion
+    container_name: pqonion-autoritate
+    environment:
+      INDEX_SAMANTA: "160"          # 0xA0, vezi testnet_authority_seed(0)
+      NUME_CHEIE: autoritate.key
+      DATA_DIR: /var/lib/pqonion/date
+    command:
+      - pqonion-dirauth
+      - --data-dir=/var/lib/pqonion/date
+      - --listen=0.0.0.0:9030
+      - --interval=30
+    networks:
+      pqonion:
+        ipv4_address: 10.42.0.10
+    # Fara healthcheck: `depends_on` doar ordoneaza pornirea, nu asteapta ca
+    # serviciul sa fie gata. Releele reincearca publicarea la 5 secunde daca
+    # esueaza, deci ordinea exacta nu conteaza.
+
+  # -------------------------------------------------------------------------
+  # Releele
+  #
+  # `--adresa-publica` e obligatorie: ascultam pe 0.0.0.0, dar in descriptor
+  # trebuie sa apara adresa pe care ne vad ceilalti. Fara ea am publica 0.0.0.0
+  # si nimeni nu ne-ar putea contacta.
+  #
+  # `--tls` cripteaza legaturile dintre noduri. Scoate-l temporar daca vrei sa
+  # vezi in Wireshark ce se transmite fara el — vezi `docker/captura.sh`.
+  # -------------------------------------------------------------------------
+  releu1:
+    build: .
+    image: pqonion
+    container_name: pqonion-releu1
+    depends_on: [autoritate]
+    environment:
+      INDEX_SAMANTA: "1"
+      DATA_DIR: /var/lib/pqonion/date
+    command:
+      - pqonion-relay
+      - --data-dir=/var/lib/pqonion/date
+      - --listen=0.0.0.0:9001
+      - --tls
+      - --adresa-publica=10.42.0.11
+      - --dirauth=10.42.0.10:9030
+      - --hsdir
+      - --consola=0.0.0.0:9100
+    ports:
+      - "127.0.0.1:9100:9100"       # consola, doar de pe masina gazda
+    networks:
+      pqonion:
+        ipv4_address: 10.42.0.11
+
+  releu2:
+    build: .
+    image: pqonion
+    container_name: pqonion-releu2
+    depends_on: [autoritate]
+    environment:
+      INDEX_SAMANTA: "2"
+      DATA_DIR: /var/lib/pqonion/date
+    command:
+      - pqonion-relay
+      - --data-dir=/var/lib/pqonion/date
+      - --listen=0.0.0.0:9002
+      - --tls
+      - --adresa-publica=10.42.0.12
+      - --dirauth=10.42.0.10:9030
+      - --hsdir
+    networks:
+      pqonion:
+        ipv4_address: 10.42.0.12
+
+  # Al treilea e si releu de iesire. `--permite-adrese-private` e necesar pentru
+  # ca magazinul e in aceeasi retea privata; pe internet nu ai pune niciodata
+  # flag-ul asta.
+  releu3:
+    build: .
+    image: pqonion
+    container_name: pqonion-releu3
+    depends_on: [autoritate]
+    environment:
+      INDEX_SAMANTA: "3"
+      DATA_DIR: /var/lib/pqonion/date
+    command:
+      - pqonion-relay
+      - --data-dir=/var/lib/pqonion/date
+      - --listen=0.0.0.0:9003
+      - --tls
+      - --adresa-publica=10.42.0.13
+      - --dirauth=10.42.0.10:9030
+      - --hsdir
+      - --exit-ports=80,443,8080
+      - --permite-adrese-private
+    networks:
+      pqonion:
+        ipv4_address: 10.42.0.13
+
+  # -------------------------------------------------------------------------
+  # Magazinul REST — ce expune serviciul ascuns
+  # -------------------------------------------------------------------------
+  magazin:
+    build: .
+    image: pqonion
+    container_name: pqonion-magazin
+    command:
+      - pqonion-shop
+      - --listen=0.0.0.0:8080
+    networks:
+      pqonion:
+        ipv4_address: 10.42.0.20
+
+  # -------------------------------------------------------------------------
+  # Serviciul ascuns
+  #
+  # Nu e expus pe niciun port catre gazda, si asta e ideea: se ajunge la el doar
+  # prin rendezvous. Adresa `.onion` se citeste din log.
+  # -------------------------------------------------------------------------
+  serviciu-ascuns:
+    build: .
+    image: pqonion
+    container_name: pqonion-hs
+    depends_on: [releu1, releu2, releu3, magazin]
+    environment:
+      DATA_DIR: /var/lib/pqonion/date
+    command:
+      - pqonion-hs
+      - --data-dir=/var/lib/pqonion/date
+      - --hsdir=10.42.0.11:9001,10.42.0.12:9002,10.42.0.13:9003
+      - --target=10.42.0.20:8080
+      - --tls
+    networks:
+      pqonion:
+        ipv4_address: 10.42.0.21
+
+  # -------------------------------------------------------------------------
+  # Clientul cu SOCKS5
+  #
+  # Singurul port publicat catre gazda. Din exterior, reteaua se vede doar prin
+  # el — ca in realitate.
+  # -------------------------------------------------------------------------
+  client:
+    build: .
+    image: pqonion
+    container_name: pqonion-client
+    depends_on: [releu1, releu2, releu3]
+    environment:
+      DATA_DIR: /var/lib/pqonion/date
+    command:
+      - pqonion-client
+      - --data-dir=/var/lib/pqonion/date
+      - --socks=0.0.0.0:9050
+      - --guard=10.42.0.11:9001
+      - --middle=10.42.0.12:9002
+      - --exit=10.42.0.13:9003
+      - --hsdir=10.42.0.11:9001,10.42.0.12:9002,10.42.0.13:9003
+      - --tls
+    ports:
+      - "127.0.0.1:9050:9050"
+    networks:
+      pqonion:
+        ipv4_address: 10.42.0.30
+
+networks:
+  pqonion:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.42.0.0/24

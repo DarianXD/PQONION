@@ -1,0 +1,36 @@
+[package]
+name = "pqo-wire-fuzz"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+pqo-wire = { path = ".." }
+
+[[bin]]
+name = "cell_decode"
+path = "fuzz_targets/cell_decode.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "msg_parse"
+path = "fuzz_targets/msg_parse.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "reassembler"
+path = "fuzz_targets/reassembler.rs"
+test = false
+doc = false
+bench = false
+
+# Workspace propriu: tintele de fuzzing cer nightly, workspace-ul principal nu.
+[workspace]

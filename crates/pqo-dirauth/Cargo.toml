@@ -1,0 +1,18 @@
+[package]
+name = "pqo-dirauth"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Autoritatea de director: vot si calcul de consens"
+
+[features]
+default = []
+pq = ["pqo-dirproto/pq", "pqo-crypto/pq"]
+
+[dependencies]
+pqo-crypto   = { path = "../pqo-crypto" }
+pqo-dirproto = { path = "../pqo-dirproto" }
+
+[dev-dependencies]
+rand_core = { version = "0.6", features = ["getrandom"] }

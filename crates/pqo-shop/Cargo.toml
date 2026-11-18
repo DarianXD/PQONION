@@ -1,0 +1,20 @@
+[package]
+name = "pqo-shop"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Serviciu REST demonstrativ, expus ca serviciu ascuns"
+
+[dependencies]
+serde      = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio      = { version = "1", default-features = false, features = ["rt-multi-thread", "net", "io-util", "sync", "time", "macros", "signal"] }
+
+[dev-dependencies]
+serde_json = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "io-util", "net", "time"] }
+
+[[bin]]
+name = "pqonion-shop"
+path = "src/bin/shop.rs"
